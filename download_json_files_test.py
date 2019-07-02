@@ -1,9 +1,12 @@
 import os
+import tempfile
 import unittest
 
 import boto3
 import botocore
 from moto import mock_s3
+
+from SIA2Training import download_json_files
 
 MY_BUCKET = "my_bucket"
 MY_PREFIX = "mock_folder"
@@ -58,3 +61,15 @@ class TestDownloadJsonFiles(unittest.TestCase):
         for path in fixtures_paths:
             key = os.path.relpath(path, fixtures_dir)
             client.upload_file(Filename=path, Bucket=bucket, Key=key)
+
+    def test_download_json_files(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            download_json_files(MY_BUCKET, MY_PREFIX, tmpdir)
+            mock_folder_local_path = os.path.join(tmpdir, MY_PREFIX)
+            self.assertTrue(os.path.isdir(mock_folder_local_path))
+            result = os.listdir(mock_folder_local_path)
+            desired_result = ["foo.json", "bar.json"]
+            self.assertCountEqual(result, desired_result)
+
+if __name__ == '__main__':
+    unittest.main()
