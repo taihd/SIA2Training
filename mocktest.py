@@ -11,6 +11,7 @@ class Testing(TestCase):
         s3 = boto3.client("s3")
         s3.create_bucket(Bucket='group2training')
         s3.put_object(Bucket=self.bucket_name, Key=self.key, Body=self.value)
+        test1.upload_file('mountain.jpg','group2training','mountain_test.jpg')
 
 
     def tearDown(self):
@@ -21,6 +22,7 @@ class Testing(TestCase):
         bucket.delete()
 
     def test_exist(self):
+        s3 = boto3.client("s3")
         test1.upload_file('test.jpg', 'group2training', "test_img")
         keys = []
         resp = s3.list_objects_v2(Bucket='group2training')
@@ -29,14 +31,8 @@ class Testing(TestCase):
         self.assertTrue('test_img' in keys)
 
     def test_download_exist(self):
-        s3 = boto3.client('s3',
-                          aws_access_key_id="fake_access_key",
-                          aws_secret_access_key="fake_secret_key"
-                          )
-        response = s3.list_objects(Bucket='group2training')
-        for o in response['Contents']:
-            print(o['Key'])
-        # download_file(bucket="group2training", key="group2training/long.txt", filename="local.txt")
-        # current_file = os.listdir()
+        s3 = boto3.client('s3')
+        test1.download_file('group2training', 'mountain_test.jpg', 'downloaded_mountain.jpg')
+        current_file = os.listdir()
         # print(current_file)
-        # self.assertTrue('local_dog.jpg' in current_file)
+        self.assertTrue('downloaded_mountain.jpg' in current_file)
